@@ -1,42 +1,123 @@
 
 # Rapport
 
-**Skriv din rapport här!**
+Först skapades en Shared Preferences instans inuti MainActivity.
+Detta ger möjligheten att läsa data genom Shared Preferences.
 
-_Du kan ta bort all text som finns sedan tidigare_.
+Koden ser ut som följande inuti "MainActivity.java":
 
-## Följande grundsyn gäller dugga-svar:
+````
+private SharedPreferences myPreferenceRef;
+myPreferenceRef =  getSharedPreferences("myPreferenceRef", MODE_PRIVATE);
+````
 
-- Ett kortfattat svar är att föredra. Svar som är längre än en sida text (skärmdumpar och programkod exkluderat) är onödigt långt.
-- Svaret skall ha minst en snutt programkod.
-- Svaret skall inkludera en kort övergripande förklarande text som redogör för vad respektive snutt programkod gör eller som svarar på annan teorifråga.
-- Svaret skall ha minst en skärmdump. Skärmdumpar skall illustrera exekvering av relevant programkod. Eventuell text i skärmdumpar måste vara läsbar.
-- I de fall detta efterfrågas, dela upp delar av ditt svar i för- och nackdelar. Dina för- respektive nackdelar skall vara i form av punktlistor med kortare stycken (3-4 meningar).
+Sedan skapades en till activity "SecondActivity".
+En knapp skapades även som öppnar SecondActivity från MainActivity.
 
-Programkod ska se ut som exemplet nedan. Koden måste vara korrekt indenterad då den blir lättare att läsa vilket gör det lättare att hitta syntaktiska fel.
+Koden ser ut som följande inuti "activity_main.xml":
 
-```
-function errorCallback(error) {
-    switch(error.code) {
-        case error.PERMISSION_DENIED:
-            // Geolocation API stöds inte, gör något
-            break;
-        case error.POSITION_UNAVAILABLE:
-            // Misslyckat positionsanrop, gör något
-            break;
-        case error.UNKNOWN_ERROR:
-            // Okänt fel, gör något
-            break;
+````
+<Button
+    android:id="@+id/button"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="Open"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toBottomOf="@+id/appBarLayout" />
+````
+
+Koden ser ut som följande inuti "MainActivity.java":
+
+````
+button.setOnClickListener(new View.OnClickListener() {
+    @Override
+    public void onClick(View view) {
+        Intent intent = new Intent(MainActivity.this, SecondActivity.class);
+        startActivity(intent);
     }
+});
+````
+
+Sedan skapades en EditText till "SecondActivity", och en TextView till "MainActivity".
+EditText widgeten tillåter användaren att skriva in text som sedan skall visas inuti en TextView widgeten.
+
+Koden ser ut som följande inuti "activity_second.xml":
+
+````
+<EditText
+    android:id="@+id/editText"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:ems="10"
+    android:inputType="text"
+    android:minHeight="48dp"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toTopOf="parent" />
+````
+
+Koden ser ut som följande inuti "activity_main.xml":
+
+````
+<TextView
+    android:id="@+id/data"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="No Data!"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toBottomOf="@+id/button" />
+````
+
+EditText widgeten använder en listener för att hämta texten och spara den i Shared Preferences.
+
+Koden ser ut som följande inuti "SecondActivity.java":
+
+````
+private SharedPreferences sharedPreferences;
+private SharedPreferences.Editor sharedPreferencesEditor;
+private EditText editText;
+
+protected void onCreate(Bundle savedInstanceState) {
+    sharedPreferences = getSharedPreferences("myPreferenceRef", MODE_PRIVATE);
+    sharedPreferencesEditor = sharedPreferences.edit();
+    editText = findViewById(R.id.editText);
+
+    editText.addTextChangedListener(new TextWatcher() {
+        @Override
+        public void afterTextChanged(Editable editable) {
+            String text = editText.getText().toString();
+            sharedPreferencesEditor.putString("data", text);
+            sharedPreferencesEditor.apply();
+        }});
+}    
+````
+
+Sedan sätts texten inuti TextView widgeten i MainActivity till den hämtade texten.
+
+Koden ser ut som följande inuti "MainActivity.java":
+
+````
+private TextView data;
+
+protected void onCreate(Bundle savedInstanceState) {
+    data = findViewById(R.id.data);
+}    
+
+protected void onResume() {
+    super.onResume();
+    data.setText(myPreferenceRef.getString("data", "No Data!"));
 }
-```
+````
 
-Bilder läggs i samma mapp som markdown-filen.
+MainActivity ser ut som följande:
 
-![](android.png)
+![](MainActivity.png)
 
-Läs gärna:
+SecondActivity ser ut som följande:
 
-- Boulos, M.N.K., Warren, J., Gong, J. & Yue, P. (2010) Web GIS in practice VIII: HTML5 and the canvas element for interactive online mapping. International journal of health geographics 9, 14. Shin, Y. &
-- Wunsche, B.C. (2013) A smartphone-based golf simulation exercise game for supporting arthritis patients. 2013 28th International Conference of Image and Vision Computing New Zealand (IVCNZ), IEEE, pp. 459–464.
-- Wohlin, C., Runeson, P., Höst, M., Ohlsson, M.C., Regnell, B., Wesslén, A. (2012) Experimentation in Software Engineering, Berlin, Heidelberg: Springer Berlin Heidelberg.
+![](SecondActivity.png)
